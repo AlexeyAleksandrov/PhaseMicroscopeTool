@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "odoE0/nx570lcQs3PHXsThSUIiP4pvrS3Jm4hV0tY92YOpkAGupBFmxtazfMYydYR1rCGHbYaWBcXrR/8rK9XQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ASUS\\source\\repos\\TestFFT2D\\TestFFT2D.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ASUS\\.nuget\\packages\\accord\\3.8.0\\accord.3.8.0.nupkg.sha512",
+    "C:\\Users\\ASUS\\.nuget\\packages\\accord.math\\3.8.0\\accord.math.3.8.0.nupkg.sha512",
+    "C:\\Users\\ASUS\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0-rc.2.23479.6\\microsoft.win32.systemevents.8.0.0-rc.2.23479.6.nupkg.sha512",
+    "C:\\Users\\ASUS\\.nuget\\packages\\system.drawing.common\\8.0.0-rc.2.23479.14\\system.drawing.common.8.0.0-rc.2.23479.14.nupkg.sha512"
+  ],
+  "logs": []
+}
