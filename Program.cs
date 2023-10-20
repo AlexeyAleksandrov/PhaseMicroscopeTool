@@ -4,6 +4,8 @@ using Accord.Math;
 using System.Numerics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using String = System.String;
+using static TestFFT2D.MathTools;
+using static TestFFT2D.FourierTransform;
 
 namespace TestFFT2D
 {
@@ -15,32 +17,12 @@ namespace TestFFT2D
             string imagePath = "C:\\Users\\ASUS\\source\\repos\\TestFFT2D\\Interferogramma.jpg";
             string imagePathOut = "C:\\Users\\ASUS\\Pictures\\Interferogramma_out.jpg";
 
-            // Загрузка изображения
-            Bitmap originalImage = new Bitmap(imagePath);
+            // загружаем изображение из файла
+            GrayScaleImageInfo imageInfo = ImagesTools.LoadGrayScaleImage(imagePath);
 
-            // Получение ширины и высоты изображения
-            int width = originalImage.Width;
-            int height = originalImage.Height;
-
-            // Создание двумерного массива для градаций серого
-            double[,] grayImage = new double[width, height];
-
-            // Преобразование изображения в градации серого
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    // Получение пикселя из оригинального изображения
-                    Color pixel = originalImage.GetPixel(x, y);
-
-                    // Вычисление значения яркости пикселя по формуле
-                    // Яркость = 0.299R + 0.587G + 0.114B
-                    double grayValue = 0.299 * pixel.R + 0.587 * pixel.G + 0.114 * pixel.B;
-
-                    // Присвоение значения яркости пикселя в двумерный массив
-                    grayImage[x, y] = grayValue;
-                }
-            }
+            double[,] grayImage = imageInfo.grayImage;
+            int width = imageInfo.width;
+            int height = imageInfo.height;
             
             // создаем массив комплексных чисел
             Complex[][] complexes = new Complex[height][];
@@ -58,7 +40,7 @@ namespace TestFFT2D
             }
             
             // прямое фурье-преобразование
-            FourierTransform.FFT2(complexes, FourierTransform.Direction.Forward);
+            FFT2(complexes, FourierTransform.Direction.Forward);
             
             // заполняем левую половину нулями
             const double grayscale = 0;
@@ -158,154 +140,15 @@ namespace TestFFT2D
                 grayImage[i, height-1] = 0;    // правая вертикальная линия
             }
             
-            // Создание изображения
-            Bitmap grayImageOut = new Bitmap(width, height);
+            // сохраняем изображение
+            GrayScaleImageInfo imageInfoOut = new GrayScaleImageInfo();
+            imageInfoOut.grayImage = grayImage;
+            imageInfoOut.width = width;
+            imageInfoOut.height = height;
 
-            // Заполнение изображения значениями пикселей
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    // Получение значения пикселя из массива
-                    double pixelValue = grayImage[x, y];
-
-                    // Преобразование значения пикселя к значению grayValue типа byte
-                    byte grayValue = (byte)Math.Round(pixelValue);
-
-                    // Создание цвета градации серого
-                    Color grayColor = Color.FromArgb(grayValue, grayValue, grayValue);
-
-                    // Установка значения пикселя на изображении
-                    grayImageOut.SetPixel(x, y, grayColor);
-                }
-            }
-
-            // Сохранение изображения в файл
-            grayImageOut.Save(imagePathOut, System.Drawing.Imaging.ImageFormat.Jpeg);
+            ImagesTools.SaveGrayScaleImage(imagePathOut, imageInfoOut);
 
             Console.WriteLine("Изображение сохранено в файл: " + imagePathOut);
-        }
-        
-        public static void normalize(double[,] massive)
-        {
-            int n = massive.GetLength(0);
-            normalize(massive, 0, 0, n, n);
-        }
-
-        public static void normalize(double[,] massive, int start_i, int start_j, int end_i, int end_j)
-        {
-            // нормализация
-            double min = massive[start_i,start_j];
-            double max = massive[start_i,start_j];
-            for (int i = start_i; i < end_i; i++)
-            {
-                for (int j = start_j; j < end_j; j++)
-                {
-                    if(min < massive[i,j])
-                    {
-                        min = massive[i,j];
-                    }
-                    if(max > massive[i,j])
-                    {
-                        max = massive[i,j];
-                    }
-                }
-            }
-
-            // производим нормализацию
-            for (int i = start_i; i < end_i; i++)
-            {
-                for (int j = start_j; j < end_j; j++)
-                {
-                    massive[i,j] = (massive[i,j] - min) / (max - min);
-                }
-            }
-        }
-        
-        public static void denormalize(double[,] massive, double min, double max)
-        {
-            int n = massive.GetLength(0);
-
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = 0; j < n; j++)
-                {
-                    massive[i,j] = massive[i,j] * (max - min) + min;
-                }
-            }
-        }
-        
-        public static void unwrapMassive(double[,] massive, int n)
-        {
-            // развёртка по Y
-            for (int y = 0; y < n; y++)
-            {
-                double[] row = new double[n];    // создаём стобец
-
-                for (int x = 0; x < n; x++)     // заполняем столбец
-                {
-                    row[x] = massive[x,y];
-                }
-
-                row = unwrap2(row);   // выполняем развёртку столбца
-
-                for (int x = 0; x < n; x++)     // заполняем матрицу
-                {
-                    massive[x,y] = row[x];
-                }
-            }
-
-            // развёртка по X
-            for (int x = 0; x < n; x++)
-            {
-                double[] column = new double[n];    // создаём стобец
-
-                for (int y = 0; y < n; y++)
-                {
-                    column[y] = massive[x,y];
-                }
-
-                column = unwrap2(column);
-
-                for (int y = 0; y < n; y++)
-                {
-                    massive[x,y] = column[y];
-                }
-            }
-        }
-        
-        public static double[] unwrap2(double[] massive)
-        {
-            int k = 0;
-            int n = massive.Length;
-            double c = 0.7;
-
-            double[] unwrapped = new double[n];
-
-            for (int i = 0; i < n; i++)
-            {
-                if(i==n-1)
-                {
-                    unwrapped[n-1] = massive[n-1] + (2 * Math.PI * k);
-                    return unwrapped;
-                }
-                unwrapped[i] = massive[i] + (2 * Math.PI * k);
-                if(Math.Abs(massive[i+1] - massive[i]) > (Math.PI * c))
-                {
-                    if(massive[i+1] < massive[i])
-                    {
-                        k++;
-                    }
-                    else
-                    {
-                        k--;
-                    }
-                }
-            }
-
-            unwrapped[n-1] = massive[n-1] + (2 * Math.PI * k);
-
-            return unwrapped;
         }
     }
 }
