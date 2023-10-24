@@ -1,8 +1,10 @@
 ﻿using System.Drawing;
+using TestFFT2D.Models;
+using static TestFFT2D.Tools.MathTools;
 
-namespace TestFFT2D;
+namespace TestFFT2D.Tools;
 
-public class ImagesTools
+public static class ImagesTools
 {
     public static GrayScaleImageInfo LoadGrayScaleImage(string imagePath)
     {
@@ -73,12 +75,61 @@ public class ImagesTools
         // Сохранение изображения в файл
         grayImageOut.Save(imagePathOut, System.Drawing.Imaging.ImageFormat.Jpeg);
     }
-}
 
-// структура для хранения информации о считанном изображении в формате градации серого
-public struct GrayScaleImageInfo
-{
-    public double[,] grayImage { get; set; }
-    public int width { get; set; }
-    public int height { get; set; }
+    public static void ConvertAngstromToImage(GrayScaleImageInfo imageInfo)
+    {
+        double[,] grayImage = imageInfo.grayImage;
+        int width = imageInfo.width;
+        int height = imageInfo.height;
+        
+        // подготовка к выводу изображения
+        // нормализуем данные
+        Normalize(grayImage, 1, 1, width-1, height-1);
+        
+        // конвертируем нормализованное значение в 0 - 255
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                grayImage[x, y] *= 255;
+            }
+        }
+
+        // считаем каким должен быть градиент
+        double[] trendMassive = new double[width];
+
+        for (int i = 0; i < width; i++)
+        {
+            double k = (((double)(width - 1 - i) / (double) (width - 1)));
+            trendMassive[i] = 255 * k;
+        }
+
+        // вычитаем из градиента получившееся значение
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                grayImage[x, y] = trendMassive[x] - grayImage[x, y];
+            }
+        }
+
+        Normalize(grayImage, 1, 1, width-1, height-1);
+        
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                grayImage[x, y] = Math.Abs(255 - (grayImage[x, y] * 255));
+            }
+        }
+
+        // зануляем граничные значения
+        for (int i = 0; i < width; i++)
+        {
+            grayImage[0, i] = 0;      // верхняя горизонтальная линия
+            grayImage[width-1, i] = 0;    // нижняя горизонтальная линия
+            grayImage[i, 0] = 0;      // левая вертикальная линия
+            grayImage[i, height-1] = 0;    // правая вертикальная линия
+        }
+    }
 }

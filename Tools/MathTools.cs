@@ -1,14 +1,14 @@
-﻿namespace TestFFT2D;
+﻿namespace TestFFT2D.Tools;
 
-public class MathTools
+public static class MathTools
 {
-    public static void normalize(double[,] massive)
+    public static void Normalize(double[,] massive)
         {
             int n = massive.GetLength(0);
-            normalize(massive, 0, 0, n, n);
+            Normalize(massive, 0, 0, n, n);
         }
 
-        public static void normalize(double[,] massive, int start_i, int start_j, int end_i, int end_j)
+        public static void Normalize(double[,] massive, int start_i, int start_j, int end_i, int end_j)
         {
             // нормализация
             double min = massive[start_i,start_j];
@@ -38,7 +38,7 @@ public class MathTools
             }
         }
         
-        public static void denormalize(double[,] massive, double min, double max)
+        public static void Denormalize(double[,] massive, double min, double max)
         {
             int n = massive.GetLength(0);
 
@@ -51,7 +51,7 @@ public class MathTools
             }
         }
         
-        public static void unwrapMassive(double[,] massive, int n)
+        public static void UnwrapMassive(double[,] massive, int n)
         {
             // развёртка по Y
             for (int y = 0; y < n; y++)
@@ -63,7 +63,7 @@ public class MathTools
                     row[x] = massive[x,y];
                 }
 
-                row = unwrap2(row);   // выполняем развёртку столбца
+                row = Unwrap2(row);   // выполняем развёртку столбца
 
                 for (int x = 0; x < n; x++)     // заполняем матрицу
                 {
@@ -81,7 +81,7 @@ public class MathTools
                     column[y] = massive[x,y];
                 }
 
-                column = unwrap2(column);
+                column = Unwrap2(column);
 
                 for (int y = 0; y < n; y++)
                 {
@@ -90,7 +90,7 @@ public class MathTools
             }
         }
         
-        public static double[] unwrap2(double[] massive)
+        public static double[] Unwrap2(double[] massive)
         {
             int k = 0;
             int n = massive.Length;

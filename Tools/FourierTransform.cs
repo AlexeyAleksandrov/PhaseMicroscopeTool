@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Accord.Math;
 
-namespace TestFFT2D;
+namespace TestFFT2D.Tools;
 
 public class FourierTransform
 {
